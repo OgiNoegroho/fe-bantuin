@@ -1,11 +1,10 @@
-import Header from "@/components/Header";
+import PublicLayout from "@/components/layouts/PublicLayout";
 import Hero from "@/components/Hero";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <>
-      <Header />
+    <PublicLayout>
       <Hero />
-    </>
+    </PublicLayout>
   );
 }
