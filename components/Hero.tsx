@@ -20,7 +20,7 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col justify-center h-full px-4 sm:px-6 md:px-12 lg:px-48">
-        <h1 className="font-display font-light text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-6">
+        <h1 className="font-display font-light text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white mb-6">
           Temukan Bantuan di <span className="text-secondary">Bantuin</span>
         </h1>
 
