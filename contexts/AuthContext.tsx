@@ -112,7 +112,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const handleTokenSet = () => {
       const token = localStorage.getItem("access_token");
       if (token) {
-        fetchUserProfile(token);
+        // Add a small delay to ensure localStorage is updated
+        setTimeout(() => {
+          fetchUserProfile(token);
+        }, 50);
       }
     };
 
@@ -138,16 +141,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [fetchUserProfile]);
 
-  // Check authentication when pathname changes (e.g., after redirect from OAuth)
   useEffect(() => {
-    // Only check if we're not loading and don't have a user but have a token
-    if (!loading && !user) {
-      const token = localStorage.getItem("access_token");
-      if (token) {
-        fetchUserProfile(token);
-      }
+    const token = localStorage.getItem("access_token");
+    if (token && !user) {
+      fetchUserProfile(token);
     }
-  }, [pathname, loading, user, fetchUserProfile]);
+  }, [pathname, user, fetchUserProfile]);
 
   // Login with Google
   const login = () => {
