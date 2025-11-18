@@ -12,7 +12,12 @@ export default function AuthCallbackClient() {
 
     if (token) {
       localStorage.setItem("access_token", token);
-      router.push("/");
+      // Dispatch custom event to notify AuthContext that token was set
+      window.dispatchEvent(new Event("tokenSet"));
+      // Small delay to ensure event is processed before redirect
+      setTimeout(() => {
+        router.push("/");
+      }, 100);
     } else {
       router.push("/auth/error");
     }
