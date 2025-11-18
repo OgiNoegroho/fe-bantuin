@@ -32,7 +32,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
+// Validate API_URL is set
+if (!API_URL && typeof window !== "undefined") {
+  console.error("NEXT_PUBLIC_API_URL is not set! Please check your environment variables.");
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -92,6 +97,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Login with Google
   const login = () => {
+    if (!API_URL) {
+      console.error("API_URL is not configured. Cannot redirect to Google OAuth.");
+      alert("Configuration error: API URL is not set. Please contact support.");
+      return;
+    }
     window.location.href = `${API_URL}/auth/google`;
   };
 
@@ -127,7 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Redirect to seller dashboard
       router.push("/seller/dashboard");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Activate seller error:", error);
       throw error;
     }
