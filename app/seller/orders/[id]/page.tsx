@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, createElement } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import SellerLayout from "@/components/layouts/SellerLayout";
@@ -11,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import {
   TbArrowLeft,
   TbPaperclip,
@@ -262,7 +261,7 @@ const SellerOrderDetailPage = () => {
                 </div>
               </div>
               <Badge className={`${currentStatus.color} text-sm`}>
-                {React.createElement(currentStatus.icon, {
+                {createElement(currentStatus.icon, {
                   className: "h-4 w-4 mr-1.5",
                 })}
                 {currentStatus.text}

@@ -256,13 +256,16 @@ const CreateOrderClient = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-start gap-4">
-                <Image
-                  src={service.images[0] || "/placeholder-image.png"}
-                  alt={service.title}
-                  width={80}
-                  height={60}
-                  className="rounded-lg object-cover"
-                />
+                <div className="relative w-20 h-15">
+                  <Image
+                    src={service.images[0] || "/placeholder-image.png"}
+                    alt={service.title}
+                    fill
+                    loading="eager"
+                    sizes="80px"
+                    className="rounded-lg object-cover"
+                  />
+                </div>
                 <h3 className="font-semibold leading-snug">{service.title}</h3>
               </div>
               <Separator className="my-4" />

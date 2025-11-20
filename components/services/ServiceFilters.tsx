@@ -176,7 +176,7 @@ const ServiceFilters = ({ onFilterChange, onSearch }: ServiceFiltersProps) => {
           <Slider
             value={priceRange}
             onValueChange={handlePriceRangeChange}
-            max={5000000}
+            max={1000000}
             step={10000}
             className="mb-2"
           />

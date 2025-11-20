@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, createElement } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -190,10 +190,9 @@ const SellerOrdersPage = () => {
                               {order.title}
                             </h3>
                             <Badge className={statusMap[order.status]?.color}>
-                              {React.createElement(
-                                statusMap[order.status]?.icon,
-                                { className: "h-4 w-4 mr-1.5" }
-                              )}
+                              {createElement(statusMap[order.status]?.icon, {
+                                className: "h-4 w-4 mr-1.5",
+                              })}
                               {statusMap[order.status]?.text}
                             </Badge>
                           </div>
