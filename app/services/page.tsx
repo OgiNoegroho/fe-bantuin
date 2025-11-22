@@ -152,7 +152,7 @@ const ServicesPage = () => {
           <div className="flex gap-8">
             {/* Desktop Sidebar Filter */}
             <div className="hidden lg:block w-64 shrink-0">
-              <div className="bg-white rounded-lg p-6 sticky top-24">
+              <div className="bg-white border-2 border-primary rounded-lg p-6 sticky top-32">
                 <div className="flex items-center gap-2 mb-6">
                   <TbAdjustmentsHorizontal className="h-5 w-5" />
                   <h2 className="text-lg font-semibold">Filter</h2>
@@ -193,8 +193,8 @@ const ServicesPage = () => {
               </div>
 
               {/* Sort Options */}
-              <div className="bg-white rounded-lg p-4 mb-6 flex items-center justify-between gap-4 flex-wrap">
-                <p className="text-sm text-gray-600">
+              <div className="bg-primary rounded-lg p-4 mb-6 flex items-center justify-between gap-4 flex-wrap">
+                <p className="text-sm text-background">
                   Menampilkan {services.length} dari {pagination.total} hasil
                 </p>
                 <div className="flex items-center gap-3">
@@ -204,7 +204,7 @@ const ServicesPage = () => {
                       handleFilterChange({ ...filters, sortBy: value })
                     }
                   >
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[180px] bg-background">
                       <SelectValue placeholder="Urutkan" />
                     </SelectTrigger>
                     <SelectContent>
