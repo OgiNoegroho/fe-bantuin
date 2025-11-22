@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { FcGoogle } from "react-icons/fc";
-import { TbTools } from "react-icons/tb";
+import { TbTools, TbDashboard } from "react-icons/tb"; // Tambah TbDashboard
 import { HiMenu, HiX } from "react-icons/hi";
 import { IoLogOut, IoSettingsOutline } from "react-icons/io5";
 import { FiUser } from "react-icons/fi";
@@ -119,14 +119,28 @@ const Header = () => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer">
-                    <FiUser className="mr-2 h-4 w-4" />
-                    <span>Profil</span>
+
+                  {/* GANTI INI: Dashboard link */}
+                  <DropdownMenuItem className="cursor-pointer" asChild>
+                    <Link
+                      href="/buyer/dashboard"
+                      className="flex items-center w-full"
+                    >
+                      <TbDashboard className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">
-                    <IoSettingsOutline className="mr-2 h-4 w-4" />
-                    <span>Pengaturan</span>
+
+                  <DropdownMenuItem className="cursor-pointer" asChild>
+                    <Link
+                      href="/buyer/settings"
+                      className="flex items-center w-full"
+                    >
+                      <IoSettingsOutline className="mr-2 h-4 w-4" />
+                      <span>Pengaturan</span>
+                    </Link>
                   </DropdownMenuItem>
+
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="cursor-pointer text-red-600 focus:text-red-600"
@@ -220,18 +234,17 @@ const Header = () => {
                       </span>
                     </div>
                   </div>
+
                   <Button className="w-full">
                     <TbTools className="text-white" />
-                    Jadi Penyedia
+                    <Link href="/seller/dashboard">Jadi Penyedia</Link>
                   </Button>
+
                   <Button variant="ghost" className="w-full justify-start">
-                    <FiUser className="mr-2 h-4 w-4" />
-                    Profil
+                    <TbDashboard className="mr-2 h-4 w-4" />
+                    <Link href="/buyer/dashboard">Dashboard</Link>
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <IoSettingsOutline className="mr-2 h-4 w-4" />
-                    Pengaturan
-                  </Button>
+
                   <Button
                     variant="outline"
                     className="w-full text-red-600 hover:text-red-700"
