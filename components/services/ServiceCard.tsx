@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TbStar, TbMapPin } from "react-icons/tb";
+import { formatRating } from "@/lib/utils";
 
 interface ServiceCardProps {
   service: {
@@ -115,7 +116,7 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
             <div className="flex items-center gap-1">
               <TbStar className="h-4 w-4 fill-yellow-400 text-yellow-400" />
               <span className="font-medium">
-                {service.avgRating > 0 ? service.avgRating.toFixed(1) : "Baru"}
+                {formatRating(service.avgRating)}
               </span>
               {service.totalReviews > 0 && (
                 <span className="text-gray-400">({service.totalReviews})</span>

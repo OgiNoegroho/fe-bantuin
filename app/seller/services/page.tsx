@@ -340,8 +340,8 @@ const SellerServicesPage = () => {
                     <div className="flex items-center gap-1">
                       <TbStar className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       <span className="font-medium">
-                        {service.avgRating > 0
-                          ? service.avgRating.toFixed(1)
+                        {Number(service.avgRating) > 0
+                          ? Number(service.avgRating).toFixed(1)
                           : "Baru"}
                       </span>
                       {service.totalReviews > 0 && (
