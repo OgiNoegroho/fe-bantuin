@@ -388,7 +388,7 @@ const ServiceDetailPage = () => {
                           <div className="flex items-center gap-1 text-sm text-gray-600 mt-2">
                             <TbStar className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                             <span className="font-medium">
-                              {service.seller.avgRating.toLocaleString()}
+                              {Number(service.seller.avgRating || 0).toFixed(1)}
                             </span>
                             <span className="text-gray-400">
                               ({service.seller.totalReviews} ulasan)
