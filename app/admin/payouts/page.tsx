@@ -132,8 +132,8 @@ const AdminPayoutsPage = () => {
         key={payout.id}
         className="group relative overflow-hidden border border-border/50 bg-card hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
       >
-        {/* Gradient Accent */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-secondary" />
+        {/* linear Accent */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-primary via-accent to-secondary" />
 
         <CardContent className="p-4 space-y-3">
           {/* Header - Amount & Status */}
@@ -165,7 +165,7 @@ const AdminPayoutsPage = () => {
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          <div className="h-px bg-linear-to-r from-transparent via-border to-transparent" />
 
           {/* User Info - Compact */}
           <div className="space-y-1.5">
@@ -257,7 +257,7 @@ const AdminPayoutsPage = () => {
         {/* Header */}
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-primary to-secondary rounded-xl shadow-lg">
+            <div className="p-2.5 bg-linear-to-br from-primary to-secondary rounded-xl shadow-lg">
               <TbWallet className="h-7 w-7 text-primary-foreground" />
             </div>
             <div>
@@ -274,7 +274,7 @@ const AdminPayoutsPage = () => {
         {/* Statistics Bar - Compact */}
         {!loading && payouts.length > 0 && (
           <div className="grid grid-cols-2 gap-3">
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+            <Card className="border-primary/20 bg-linear-to-br from-primary/5 to-transparent">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -292,7 +292,7 @@ const AdminPayoutsPage = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-accent/20 bg-gradient-to-br from-accent/5 to-transparent">
+            <Card className="border-accent/20 bg-linear-to-br from-accent/5 to-transparent">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -330,8 +330,8 @@ const AdminPayoutsPage = () => {
                 Semua Bersih!
               </h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                Tidak ada permintaan penarikan dana yang tertunda saat ini.
-                Anda akan melihat permintaan baru di sini.
+                Tidak ada permintaan penarikan dana yang tertunda saat ini. Anda
+                akan melihat permintaan baru di sini.
               </p>
             </CardContent>
           </Card>

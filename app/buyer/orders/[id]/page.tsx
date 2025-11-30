@@ -32,6 +32,7 @@ import {
   MapPin,
   Download,
   ArrowLeft,
+  AlertCircle,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -175,6 +176,11 @@ const BuyerOrderDetailPage = () => {
   ];
   const activeStageIndex = trackingStages.filter((s) => s.completed).length - 1;
 
+  // LOGIKA BARU: Tentukan apakah aksi pembayaran harus ditampilkan
+  const showPaymentActions = ["DRAFT", "WAITING_PAYMENT"].includes(
+    order.status
+  );
+
   return (
     <BuyerLayout>
       <div className="space-y-6">
@@ -278,6 +284,7 @@ const BuyerOrderDetailPage = () => {
                         alt={order.service.title}
                         fill
                         className="object-cover"
+                        sizes="(max-width: 640px) 100vw, 160px"
                       />
                     )}
                   </div>
@@ -306,9 +313,22 @@ const BuyerOrderDetailPage = () => {
                 <CardTitle>Status & Aksi</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {order.status === "WAITING_PAYMENT" && (
-                  <PaymentButton orderId={order.id} onSuccess={fetchOrder} />
+                {/* LOGIKA PEMBAYARAN: Tampilkan tombol jika DRAFT atau WAITING_PAYMENT */}
+                {showPaymentActions && (
+                  <>
+                    <div className="bg-amber-50 p-3 rounded-lg border border-amber-200 text-xs text-amber-900 flex gap-2">
+                      <AlertCircle className="shrink-0 w-4 h-4 mt-0.5" />
+                      <p>
+                        Dana Anda akan disimpan dengan aman dalam rekening
+                        escrow dan akan dilepaskan kepada penyedia setelah
+                        pekerjaan selesai.
+                      </p>
+                    </div>
+                    <PaymentButton orderId={order.id} onSuccess={fetchOrder} />
+                  </>
                 )}
+                {/* END LOGIKA PEMBAYARAN */}
+
                 {order.status === "DELIVERED" && (
                   <Button
                     onClick={() => setShowCompleteDialog(true)}
