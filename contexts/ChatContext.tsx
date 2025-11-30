@@ -54,6 +54,14 @@ interface RecipientData {
   major?: string | null;
 }
 
+export interface ServicePreview {
+  id: string;
+  title: string;
+  price: number;
+  image: string;
+  sellerId: string;
+}
+
 interface ChatContextType {
   socket: Socket | null;
   isConnected: boolean;
@@ -69,9 +77,14 @@ interface ChatContextType {
   messages: Message[];
   unreadCount: number;
 
+  // State baru untuk pending service
+  pendingService: ServicePreview | null;
+  setPendingService: (service: ServicePreview | null) => void;
+
   openChatWith: (
     recipient: RecipientData,
-    initialMessage?: string
+    initialMessage?: string,
+    serviceData?: ServicePreview
   ) => Promise<void>;
   sendMessage: (content: string) => Promise<void>;
   refreshConversations: () => Promise<Conversation[]>;
@@ -83,21 +96,19 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, isAuthenticated } = useAuth();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-
   const [isInboxOpen, setIsInboxOpen] = useState(false);
   const [activeConversation, setActiveConversation] =
     useState<Conversation | null>(null);
-
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-
+  const [pendingService, setPendingService] = useState<ServicePreview | null>(
+    null
+  );
   const [messagesCache, setMessagesCache] = useState<Record<string, Message[]>>(
     {}
   );
-
   const activeConversationRef = useRef(activeConversation);
 
-  // Load cache saat start
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedCache = localStorage.getItem("chat_messages_cache");
@@ -124,7 +135,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     activeConversationRef.current = activeConversation;
   }, [activeConversation]);
 
-  // Fetch Inbox Helper
   const fetchConversations = useCallback(async () => {
     try {
       const token = localStorage.getItem("access_token");
@@ -288,10 +298,18 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
   const openChatWith = async (
     recipient: RecipientData,
-    initialMessage?: string
+    initialMessage?: string,
+    serviceData?: ServicePreview
   ) => {
     if (!user) return;
     setIsInboxOpen(false);
+
+    // Set pending service jika ada
+    if (serviceData) {
+      setPendingService(serviceData);
+    } else {
+      setPendingService(null);
+    }
 
     let existing = conversations.find((c) =>
       c.participants.some((p) => p.user.id === recipient.id)
@@ -333,6 +351,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     const chatId = activeConversation.id;
     const tempId = `temp-${Date.now()}-${Math.random()}`;
 
+    // 1. Buat object pesan optimistic
     const optimisticMsg: Message = {
       id: tempId,
       content,
@@ -342,10 +361,37 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       sender: { fullName: user.fullName, profilePicture: user.profilePicture },
     };
 
+    // 2. Optimistic Update untuk Chat Window
     setMessagesCache((prev) => ({
       ...prev,
       [chatId]: [...(prev[chatId] || []), optimisticMsg],
     }));
+
+    // 3. Optimistic Update untuk Inbox List
+    setConversations((prevConvs) => {
+      if (chatId === "new") return prevConvs;
+
+      const index = prevConvs.findIndex((c) => c.id === chatId);
+      if (index === -1) return prevConvs;
+
+      const newConvs = [...prevConvs];
+      const updatedConv = {
+        ...newConvs[index],
+        lastMessage: {
+          content: content,
+          senderId: user.id,
+          createdAt: new Date().toISOString(),
+        },
+        // Opsional: update timestamp conversation agar naik ke atas
+        // updatedAt: new Date().toISOString()
+      };
+
+      // Pindahkan ke paling atas
+      newConvs.splice(index, 1);
+      newConvs.unshift(updatedConv);
+
+      return newConvs;
+    });
 
     try {
       const recipient = activeConversation.participants.find(
@@ -424,6 +470,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         conversations,
         messages: activeMessages,
         unreadCount,
+        pendingService,
+        setPendingService,
         openChatWith,
         sendMessage,
         refreshConversations: fetchConversations,

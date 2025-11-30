@@ -7,6 +7,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
 import { id } from "date-fns/locale";
 
+// Helper untuk memparsing pesan
+const getDisplayMessage = (content: string) => {
+  try {
+    if (content.startsWith('{"type":"service_inquiry"')) {
+      const parsed = JSON.parse(content);
+      return parsed.text || "Menanyakan Jasa...";
+    }
+    return content;
+  } catch (e) {
+    return content;
+  }
+};
+
 export const ChatInboxList = () => {
   const { conversations, openChatWith } = useChat();
   const { user } = useAuth();
@@ -28,6 +41,9 @@ export const ChatInboxList = () => {
           )?.user;
 
           if (!otherParticipant) return null;
+
+          const lastMessageContent = conv.lastMessage?.content || "";
+          const displayMessage = getDisplayMessage(lastMessageContent);
 
           return (
             <div
@@ -54,7 +70,7 @@ export const ChatInboxList = () => {
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground truncate">
-                  {conv.lastMessage?.content || "Mulai percakapan..."}
+                  {displayMessage || "Mulai percakapan..."}
                 </p>
               </div>
             </div>

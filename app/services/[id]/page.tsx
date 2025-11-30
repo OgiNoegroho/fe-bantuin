@@ -145,17 +145,28 @@ const ServiceDetailPage = () => {
 
   const handleChatSeller = () => {
     if (!isAuthenticated) {
-      router.push("/auth/login"); // atau tampilkan modal login
+      router.push("/auth/login");
       return;
     }
 
     if (service) {
-      // Panggil dengan object lengkap (nama & foto) untuk tampilan draft
-      openChatWith({
-        id: service.seller.id,
-        fullName: service.seller.fullName,
-        profilePicture: service.seller.profilePicture,
-      });
+      const servicePreview = {
+        id: service.id,
+        title: service.title,
+        price: service.price,
+        image: service.images[0] || "",
+        sellerId: service.seller.id,
+      };
+
+      openChatWith(
+        {
+          id: service.seller.id,
+          fullName: service.seller.fullName,
+          profilePicture: service.seller.profilePicture,
+        },
+        undefined,
+        servicePreview
+      );
     }
   };
 
