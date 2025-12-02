@@ -8,7 +8,8 @@ import { ChatWindow } from "./ChatWindow";
 
 export const ChatFloatingWindow = () => {
   const { isAuthenticated, user } = useAuth();
-  const { activeConversation, closeChatWindow } = useChat();
+  // [UPDATE] Ambil onlineUsers dari context
+  const { activeConversation, closeChatWindow, onlineUsers } = useChat();
 
   if (!isAuthenticated || !activeConversation) return null;
 
@@ -19,22 +20,47 @@ export const ChatFloatingWindow = () => {
   const profilPartisipan = otherParticipant?.profilePicture;
   const namaPartisipan = otherParticipant?.fullName || "Percakapan";
 
+  // [BARU] Cek apakah user tersebut ada di dalam Set onlineUsers
+  const isOnline = otherParticipant
+    ? onlineUsers.has(otherParticipant.id)
+    : false;
+
   return (
     <div className="fixed bottom-10 left-6 z-50 flex flex-col items-start space-y-4 rounded-sm">
       <div className="w-[350px] md:w-[400px] h-[500px] bg-white shadow-2xl border border-primary/20 rounded-xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300">
         {/* Header */}
         <div className="p-3 px-4 bg-white border-b text-secondary-foreground flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3 overflow-hidden">
-            {/* Avatar */}
-            <Avatar className="h-9 w-9 border-2 border-secondary-foreground/20 shrink-0">
-              <AvatarImage src={profilPartisipan || ""} />
-              <AvatarFallback>{namaPartisipan[0]}</AvatarFallback>
-            </Avatar>
+            {/* Avatar dengan Indikator Dot */}
+            <div className="relative">
+              <Avatar className="h-9 w-9 border-2 border-secondary-foreground/20 shrink-0">
+                <AvatarImage src={profilPartisipan || ""} />
+                <AvatarFallback>{namaPartisipan[0]}</AvatarFallback>
+              </Avatar>
+
+              {/* [BARU] Green Dot Indicator */}
+              {isOnline && (
+                <span
+                  className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white"
+                  title="Online"
+                />
+              )}
+            </div>
 
             <div className="flex flex-col min-w-0">
-              <h3 className="font-semibold text-sm md:text-base line-clamp-1">
+              <h3 className="font-semibold text-sm md:text-base line-clamp-1 leading-tight">
                 {namaPartisipan}
               </h3>
+              {/* [BARU] Teks Status */}
+              <span
+                className={`text-xs ${
+                  isOnline
+                    ? "text-green-600 font-medium"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {isOnline ? "Online" : "Offline"}
+              </span>
             </div>
           </div>
 
