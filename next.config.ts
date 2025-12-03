@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "tse1.mm.bing.net" },
       { protocol: "https", hostname: "plus.unsplash.com" },
       { protocol: "https", hostname: "ccfqsrvqfbigkhcbtoac.supabase.co" },
+      {
+        protocol: "https",
+        hostname: "ytrxhrltkqztkcnqlcrz.storage.supabase.co",
+      },
     ],
   },
 };
