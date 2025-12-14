@@ -18,6 +18,7 @@ export default function BuyerSettingsPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [previewImage, setPreviewImage] = useState("");
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -50,6 +51,8 @@ export default function BuyerSettingsPage() {
 
       if (response.ok) {
         setSuccess("Foto profil berhasil diupdate");
+        // Force update UI locally instantly
+        setPreviewImage(`${result.data.url}?t=${new Date().getTime()}`);
         await refreshUser();
       } else {
         throw new Error("Gagal mengupdate foto profil");
@@ -75,7 +78,14 @@ export default function BuyerSettingsPage() {
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={user?.profilePicture || ""} />
+                <AvatarImage
+                  src={
+                    previewImage ||
+                    (user?.profilePicture
+                      ? `${user.profilePicture}?t=${new Date().getTime()}` // Append timestamp to bust cache
+                      : "")
+                  }
+                />
                 <AvatarFallback className="text-2xl">
                   {user?.fullName?.[0] || "U"}
                 </AvatarFallback>

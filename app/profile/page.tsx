@@ -31,6 +31,17 @@ import {
   TbCoin,
   TbPackage,
 } from "react-icons/tb";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 // Interface untuk statistik seller (sama seperti di halaman stats)
 interface SellerStats {
@@ -43,12 +54,26 @@ interface SellerStats {
 }
 
 export default function ProfilePage() {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, refreshUser } = useAuth();
   const router = useRouter();
 
   // State untuk Seller Stats
   const [sellerStats, setSellerStats] = useState<SellerStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);
+
+  // State untuk Phone Verification
+  const [isPhoneDialogOpen, setIsPhoneDialogOpen] = useState(false);
+  const [phoneNumberInput, setPhoneNumberInput] = useState("");
+  const [otpInput, setOtpInput] = useState("");
+  const [verificationStep, setVerificationStep] = useState<"request" | "verify">(
+    "request"
+  );
+  const [isSubmittingPhone, setIsSubmittingPhone] = useState(false);
+
+  // State untuk Bio Edit
+  const [isBioDialogOpen, setIsBioDialogOpen] = useState(false);
+  const [bioInput, setBioInput] = useState("");
+  const [isSubmittingBio, setIsSubmittingBio] = useState(false);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -108,6 +133,103 @@ export default function ProfilePage() {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleRequestOtp = async () => {
+    if (!phoneNumberInput) {
+      toast.error("Nomor telepon tidak boleh kosong");
+      return;
+    }
+
+    setIsSubmittingPhone(true);
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch("/api/users/request-phone-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ phoneNumber: phoneNumberInput }),
+      });
+      const data = await res.json();
+      if (data.success || res.ok) {
+        toast.success("Kode Verifikasi dikirim ke WhatsApp Anda");
+        if (data.developer_note) toast.info(data.developer_note);
+        setVerificationStep("verify");
+      } else {
+        toast.error(data.message || "Gagal mengirim OTP");
+      }
+    } catch (err) {
+      toast.error("Terjadi kesalahan saat menghubungi server");
+    } finally {
+      setIsSubmittingPhone(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otpInput) {
+      toast.error("Masukkan kode OTP");
+      return;
+    }
+
+    setIsSubmittingPhone(true);
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch("/api/users/verify-phone", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ otp: otpInput }),
+      });
+      const data = await res.json();
+      if (data.success || res.ok) {
+        toast.success("Nomor telepon berhasil diverifikasi");
+        await refreshUser();
+        setIsPhoneDialogOpen(false);
+        // Reset
+        setTimeout(() => {
+          setVerificationStep("request");
+          setPhoneNumberInput("");
+          setOtpInput("");
+        }, 300);
+      } else {
+        toast.error(data.message || "OTP Salah / Kadaluarsa");
+      }
+    } catch (err) {
+      toast.error("Terjadi kesalahan saat verifikasi");
+    } finally {
+      setIsSubmittingPhone(false);
+    }
+  };
+
+  const handleUpdateBio = async () => {
+    setIsSubmittingBio(true);
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch("/api/users/update-profile", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ bio: bioInput }),
+      });
+      const data = await res.json();
+      if (data.success || res.ok) {
+        toast.success("Bio berhasil diperbarui");
+        await refreshUser();
+        setIsBioDialogOpen(false);
+      } else {
+        toast.error(data.message || "Gagal memperbarui bio");
+      }
+    } catch (err) {
+      toast.error("Terjadi kesalahan saat menghubungi server");
+    } finally {
+      setIsSubmittingBio(false);
+    }
   };
 
   return (
@@ -238,17 +360,43 @@ export default function ProfilePage() {
                             Nomor Telepon
                           </span>
                         </div>
-                        <p className="text-foreground">
-                          {user.phoneNumber || "Belum diatur"}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-foreground">
+                            {user.phoneNumber || "-"}
+                          </p>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-muted-foreground hover:text-primary"
+                            onClick={() => {
+                              setPhoneNumberInput(user.phoneNumber || "");
+                              setIsPhoneDialogOpen(true);
+                            }}
+                          >
+                            <TbEdit className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
 
                     <div className="bg-muted/30 p-4 rounded-lg border">
-                      <h4 className="text-sm font-semibold mb-2 text-foreground">
-                        Bio / Deskripsi Diri
-                      </h4>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="text-sm font-semibold text-foreground">
+                          Bio / Deskripsi Diri
+                        </h4>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-primary"
+                          onClick={() => {
+                            setBioInput(user.bio || "");
+                            setIsBioDialogOpen(true);
+                          }}
+                        >
+                          <TbEdit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                         {user.bio ||
                           "Belum ada deskripsi diri. Tambahkan di pengaturan profil."}
                       </p>
@@ -312,8 +460,8 @@ export default function ProfilePage() {
                             {loadingStats
                               ? "..."
                               : sellerStats
-                              ? formatCurrency(sellerStats.stats.totalRevenue)
-                              : "Rp 0"}
+                                ? formatCurrency(sellerStats.stats.totalRevenue)
+                                : "Rp 0"}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -389,6 +537,98 @@ export default function ProfilePage() {
           </Tabs>
         </div>
       </div>
-    </PublicLayout>
+
+
+      <Dialog open={isPhoneDialogOpen} onOpenChange={setIsPhoneDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ubah Nomor Telepon</DialogTitle>
+            <DialogDescription>
+              {verificationStep === "request"
+                ? "Masukkan nomor WhatsApp aktif Anda untuk mendapatkan kode verifikasi."
+                : "Masukkan 6 digit kode yang dikirim ke WhatsApp Anda."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {verificationStep === "request" ? (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="phone">Nomor WhatsApp</Label>
+                <Input
+                  id="phone"
+                  placeholder="Contoh: 081234567890"
+                  value={phoneNumberInput}
+                  onChange={(e) => setPhoneNumberInput(e.target.value)}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="otp">Kode Verifikasi (OTP)</Label>
+                <Input
+                  id="otp"
+                  placeholder="123456"
+                  maxLength={6}
+                  className="text-center text-lg tracking-widest"
+                  value={otpInput}
+                  onChange={(e) => setOtpInput(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            {verificationStep === "request" ? (
+              <Button onClick={handleRequestOtp} disabled={isSubmittingPhone}>
+                {isSubmittingPhone ? "Mengirim..." : "Kirim Kode"}
+              </Button>
+            ) : (
+              <div className="flex flex-col w-full gap-2">
+                <Button onClick={handleVerifyOtp} disabled={isSubmittingPhone}>
+                  {isSubmittingPhone ? "Memverifikasi..." : "Verifikasi"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setVerificationStep("request")}
+                  disabled={isSubmittingPhone}
+                >
+                  Kembali ubah nomor
+                </Button>
+              </div>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isBioDialogOpen} onOpenChange={setIsBioDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ubah Bio / Deskripsi Diri</DialogTitle>
+            <DialogDescription>
+              Ceritakan sedikit tentang diri Anda, keahlian, atau pengalaman yang relevan.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="bio">Bio</Label>
+              <textarea
+                id="bio"
+                className="flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder="Contoh: Mahasiswa Teknik Informatika yang berpengalaman dalam..."
+                value={bioInput}
+                onChange={(e) => setBioInput(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleUpdateBio} disabled={isSubmittingBio}>
+              {isSubmittingBio ? "Menyimpan..." : "Simpan Perubahan"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </PublicLayout >
   );
 }
