@@ -26,6 +26,8 @@ import {
   TbEyeOff,
   TbStar,
   TbShoppingCart,
+  TbChevronLeft,
+  TbChevronRight,
 } from "react-icons/tb";
 import Image from "next/image";
 
@@ -55,6 +57,85 @@ const categoryNames: Record<string, string> = {
   TUTOR: "Tutor",
   TECHNICAL: "Teknis",
   OTHER: "Lainnya",
+};
+
+const ServiceImageSlider = ({ images, title }: { images: string[]; title: string }) => {
+  const [index, setIndex] = useState(0);
+
+  // Auto slide
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % images.length);
+    }, 5000); // 5 seconds
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  const next = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prev = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  if (images.length === 0) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <span className="text-4xl">📦</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full h-full group/slider overflow-hidden">
+      <div
+        className="flex h-full transition-transform duration-500 ease-in-out"
+        style={{ transform: `translateX(-${index * 100}%)` }}
+      >
+        {images.map((img, i) => (
+          <div key={i} className="relative w-full h-full flex-shrink-0">
+            <Image
+              src={img}
+              alt={`${title} ${i + 1}`}
+              fill
+              className="object-cover"
+            />
+          </div>
+        ))}
+      </div>
+
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={prev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-black/70 z-10"
+          >
+            <TbChevronLeft size={16} />
+          </button>
+          <button
+            onClick={next}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-black/70 z-10"
+          >
+            <TbChevronRight size={16} />
+          </button>
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+            {images.map((_, i) => (
+              <div
+                key={i}
+                className={`w-1.5 h-1.5 rounded-full shadow-sm transition-all ${i === index ? "bg-white scale-125" : "bg-white/60"
+                  }`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
 };
 
 const SellerServicesPage = () => {
@@ -260,19 +341,8 @@ const SellerServicesPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service) => (
               <Card key={service.id} className="overflow-hidden">
-                <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
-                  {service.images.length > 0 ? (
-                    <Image
-                      src={service.images[0]}
-                      alt={service.title}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <span className="text-4xl">📦</span>
-                    </div>
-                  )}
+                <div className="relative aspect-video w-full overflow-hidden bg-gray-100 group">
+                  <ServiceImageSlider images={service.images} title={service.title} />
 
                   <div className="absolute top-2 right-2">
                     <DropdownMenu>
