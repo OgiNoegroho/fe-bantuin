@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import SellerLayout from "@/components/layouts/SellerLayout";
+import { toast } from "sonner";
 import ServiceForm, {
   ServiceFormData,
 } from "@/components/services/ServiceForm";
@@ -26,8 +27,7 @@ import {
   TbEyeOff,
   TbStar,
   TbShoppingCart,
-  TbChevronLeft,
-  TbChevronRight,
+  TbClock,
 } from "react-icons/tb";
 import Image from "next/image";
 
@@ -181,13 +181,15 @@ const SellerServicesPage = () => {
   const handleCreateService = async (formData: ServiceFormData) => {
     try {
       const token = localStorage.getItem("access_token");
+      const payload = { ...formData, status: "PENDING", isActive: false };
+
       const response = await fetch("/api/services", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -195,12 +197,24 @@ const SellerServicesPage = () => {
       if (data.success) {
         await fetchServices();
         setFormOpen(false);
+
+        // If server couldn't enforce PENDING, inform the seller
+        if (data.warning) {
+          toast.warning(
+            `${data.warning} Jika Anda melihat jasa muncul secara publik, hubungi administrator.`
+          );
+        } else if (data.data?.status === "PENDING") {
+          // Inform seller if service is pending review
+          toast.success(
+            "Jasa Anda berhasil dibuat dan dikirim untuk ditinjau oleh administrator."
+          );
+        }
       } else {
-        alert(data.error || "Gagal membuat jasa");
+        toast.error(data.error || "Gagal membuat jasa");
       }
     } catch (error) {
       console.error("Error creating service:", error);
-      alert("Terjadi kesalahan saat membuat jasa");
+      toast.error("Terjadi kesalahan saat membuat jasa");
     }
   };
 
@@ -209,13 +223,19 @@ const SellerServicesPage = () => {
 
     try {
       const token = localStorage.getItem("access_token");
+      // If the service was previously rejected, resubmit for review
+      const payload =
+        editingService.status === "REJECTED"
+          ? { ...formData, status: "PENDING", isActive: false }
+          : formData;
+
       const response = await fetch(`/api/services/${editingService.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -224,12 +244,19 @@ const SellerServicesPage = () => {
         await fetchServices();
         setEditingService(null);
         setFormOpen(false);
+        if (data.data?.status === "PENDING") {
+          toast.info(
+            "Jasa berhasil dikirim ulang untuk peninjauan administrator."
+          );
+        } else {
+          toast.success("Perubahan jasa tersimpan");
+        }
       } else {
-        alert(data.error || "Gagal mengupdate jasa");
+        toast.error(data.error || "Gagal mengupdate jasa");
       }
     } catch (error) {
       console.error("Error updating service:", error);
-      alert("Terjadi kesalahan saat mengupdate jasa");
+      toast.error("Terjadi kesalahan saat mengupdate jasa");
     }
   };
 
@@ -248,11 +275,11 @@ const SellerServicesPage = () => {
       if (data.success) {
         await fetchServices();
       } else {
-        alert(data.error || "Gagal mengubah status jasa");
+        toast.error(data.error || "Gagal mengubah status jasa");
       }
     } catch (error) {
       console.error("Error toggling service:", error);
-      alert("Terjadi kesalahan");
+      toast.error("Terjadi kesalahan");
     }
   };
 
@@ -273,11 +300,11 @@ const SellerServicesPage = () => {
       if (data.success) {
         await fetchServices();
       } else {
-        alert(data.error || "Gagal menghapus jasa");
+        toast.error(data.error || "Gagal menghapus jasa");
       }
     } catch (error) {
       console.error("Error deleting service:", error);
-      alert("Terjadi kesalahan saat menghapus jasa");
+      toast.error("Terjadi kesalahan saat menghapus jasa");
     }
   };
 
@@ -360,21 +387,28 @@ const SellerServicesPage = () => {
                           <TbEdit className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleToggleActive(service.id)}
-                        >
-                          {service.isActive ? (
-                            <>
-                              <TbEyeOff className="mr-2 h-4 w-4" />
-                              Nonaktifkan
-                            </>
-                          ) : (
-                            <>
-                              <TbEye className="mr-2 h-4 w-4" />
-                              Aktifkan
-                            </>
-                          )}
-                        </DropdownMenuItem>
+                        {service.status === "PENDING" ? (
+                          <DropdownMenuItem disabled>
+                            <TbClock className="mr-2 h-4 w-4" /> Menunggu
+                            Persetujuan
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem
+                            onClick={() => handleToggleActive(service.id)}
+                          >
+                            {service.isActive ? (
+                              <>
+                                <TbEyeOff className="mr-2 h-4 w-4" />
+                                Nonaktifkan
+                              </>
+                            ) : (
+                              <>
+                                <TbEye className="mr-2 h-4 w-4" />
+                                Aktifkan
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => handleDeleteService(service.id)}
@@ -390,6 +424,22 @@ const SellerServicesPage = () => {
                   <div className="absolute top-2 left-2 flex gap-2">
                     <Badge variant={service.isActive ? "default" : "secondary"}>
                       {service.isActive ? "Aktif" : "Nonaktif"}
+                    </Badge>
+                    <Badge
+                      variant={
+                        service.status === "PENDING"
+                          ? "secondary"
+                          : service.status === "REJECTED"
+                          ? "destructive"
+                          : "outline"
+                      }
+                      className="bg-white/90"
+                    >
+                      {service.status === "PENDING"
+                        ? "Menunggu"
+                        : service.status === "REJECTED"
+                        ? "Ditolak"
+                        : "Diterima"}
                     </Badge>
                     <Badge variant="outline" className="bg-white/90">
                       {categoryNames[service.category]}

@@ -26,9 +26,8 @@ interface User {
   avgRating: number;
   totalReviews: number;
   totalOrdersCompleted: number;
-  role?: 'USER' | 'SELLER' | 'ADMIN';
+  role: "USER" | "SELLER" | "ADMIN";
 }
-
 
 interface AuthContextType {
   user: User | null;

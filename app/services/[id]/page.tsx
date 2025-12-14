@@ -44,6 +44,7 @@ interface ServiceDetail {
   totalOrders: number;
   isActive: boolean;
   status: string;
+  adminNotes?: string | null;
   seller: {
     id: string;
     fullName: string;
@@ -225,6 +226,21 @@ const ServiceDetailPage = () => {
     <PublicLayout>
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="container mx-auto px-4">
+          {/* Status Banner for Owner */}
+          {isOwner && service.status === "PENDING" && (
+            <div className="mb-4 p-3 rounded-md bg-yellow-50 border border-yellow-200 text-yellow-800">
+              Jasa ini sedang menunggu persetujuan administrator. Anda akan
+              diberitahu setelah ditinjau.
+            </div>
+          )}
+          {isOwner && service.status === "REJECTED" && (
+            <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-800">
+              Jasa ini ditolak oleh administrator.{" "}
+              {service.adminNotes
+                ? `Alasan: ${service.adminNotes}`
+                : "Silakan periksa dan perbarui informasinya."}
+            </div>
+          )}
           {/* Breadcrumb */}
           <div className="mb-6 text-sm text-gray-600">
             <span
