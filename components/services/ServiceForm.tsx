@@ -6,23 +6,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import { TbX, TbLoader } from "react-icons/tb";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { TbX, TbLoader, TbPhotoPlus } from "react-icons/tb";
 import { uploadServicePhoto } from "@/lib/upload";
 import { useAuth } from "@/contexts/AuthContext";
 import Image from "next/image";
@@ -51,7 +37,7 @@ export interface ServiceFormData {
   images: string[];
 
   // Pricing Details
-  pricingType?: 'FIXED' | 'PER_PAGE' | 'PER_WORD' | 'PER_HOUR' | 'PER_ITEM' | 'PER_MINUTE' | 'PER_QUESTION' | 'PER_SLIDE' | 'CUSTOM';
+  pricingType?: "FIXED" | "PER_PAGE" | "PER_WORD" | "PER_HOUR" | "PER_ITEM" | "PER_MINUTE" | "PER_QUESTION" | "PER_SLIDE" | "CUSTOM";
   pricePerUnit?: number;
   minimumOrder?: number;
 
@@ -64,20 +50,18 @@ export interface ServiceFormData {
   faq?: Array<{ question: string; answer: string }>;
 }
 
-
-
-const ServiceForm = ({
-  open,
-  onOpenChange,
-  onSubmit,
-  initialData,
-  mode = "create",
-}: ServiceFormProps) => {
+const ServiceForm = ({ open, onOpenChange, onSubmit, initialData, mode = "create" }: ServiceFormProps) => {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [isCropping, setIsCropping] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [formData, setFormData] = useState<ServiceFormData>({
     title: initialData?.title || "",
     description: initialData?.description || "",
@@ -98,10 +82,7 @@ const ServiceForm = ({
     faq: initialData?.faq || [],
   });
 
-  const handleChange = (
-    field: keyof ServiceFormData,
-    value: string | number | string[]
-  ) => {
+  const handleChange = (field: keyof ServiceFormData, value: string | number | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
@@ -146,18 +127,12 @@ const ServiceForm = ({
     setIsCropping(false);
 
     try {
-      const uploadPromises = Array.from(files).map((file) =>
-        uploadServicePhoto(
-          file,
-          user.fullName,
-          formData.title || "service",
-          user.nim
-        )
-      );
+      // Convert blob to File
+      const file = new File([blob], `service-${Date.now()}.jpg`, { type: "image/jpeg" });
 
-      const results = await Promise.all(uploadPromises);
-      const newUrls = results.map((result) => result.data.url);
-      handleChange("images", [...formData.images, ...newUrls]);
+      const result = await uploadServicePhoto(file, user.fullName, formData.title || "service", user.nim);
+      const newUrl = result.data.url;
+      handleChange("images", [...formData.images, newUrl]);
     } catch (err) {
       setErrors((prev) => ({
         ...prev,
@@ -174,11 +149,7 @@ const ServiceForm = ({
 
     try {
       setUploading(true);
-      const croppedImage = await getCroppedImg(
-        imageSrc,
-        croppedAreaPixels,
-        rotation
-      );
+      const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels, rotation);
 
       if (croppedImage) {
         await uploadCroppedImage(croppedImage);
@@ -258,187 +229,80 @@ const ServiceForm = ({
   };
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[90vh]">
-        <DrawerHeader>
-          <DrawerTitle>
-            {mode === "create" ? "Buat Jasa Baru" : "Edit Jasa"}
-          </DrawerTitle>
-          <DrawerDescription>
-            {mode === "create" ? (
-              <>
-                Isi formulir di bawah untuk membuat jasa baru. Setelah dibuat,
-                jasa akan dikirim untuk ditinjau administrator sebelum
-                dipublikasikan.
-              </>
-            ) : (
-              "Perbarui informasi jasa Anda"
-            )}
-          </DrawerDescription>
-        </DrawerHeader>
-        <form onSubmit={handleSubmit} className="px-4 overflow-y-auto">
-          <div className="space-y-4 pb-6">
-            {/* Title */}
-            <div className="space-y-2">
-              <Label htmlFor="title">
-                Judul Jasa <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => handleChange("title", e.target.value)}
-                placeholder="Contoh: Desain Logo Profesional untuk Bisnis"
-                maxLength={100}
-              />
-              {errors.title && (
-                <p className="text-sm text-destructive">{errors.title}</p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                {formData.title.length}/100 karakter
-              </p>
-            </div>
+    <>
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className="max-h-[90vh]">
+          <DrawerHeader>
+            <DrawerTitle>{mode === "create" ? "Buat Jasa Baru" : "Edit Jasa"}</DrawerTitle>
+            <DrawerDescription>
+              {mode === "create" ? <>Isi formulir di bawah untuk membuat jasa baru. Setelah dibuat, jasa akan dikirim untuk ditinjau administrator sebelum dipublikasikan.</> : "Perbarui informasi jasa Anda"}
+            </DrawerDescription>
+          </DrawerHeader>
+          <form onSubmit={handleSubmit} className="px-4 overflow-y-auto">
+            <div className="space-y-4 pb-6">
+              {/* Title */}
+              <div className="space-y-2">
+                <Label htmlFor="title">
+                  Judul Jasa <span className="text-destructive">*</span>
+                </Label>
+                <Input id="title" value={formData.title} onChange={(e) => handleChange("title", e.target.value)} placeholder="Contoh: Desain Logo Profesional untuk Bisnis" maxLength={100} />
+                {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
+                <p className="text-xs text-muted-foreground">{formData.title.length}/100 karakter</p>
+              </div>
 
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description">
-                Deskripsi <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleChange("description", e.target.value)}
-                placeholder="Jelaskan detail jasa yang Anda tawarkan..."
-                rows={5}
-                maxLength={2000}
-              />
-              {errors.description && (
-                <p className="text-sm text-destructive">{errors.description}</p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                {formData.description.length}/2000 karakter
-              </p>
-            </div>
+              {/* Description */}
+              <div className="space-y-2">
+                <Label htmlFor="description">
+                  Deskripsi <span className="text-destructive">*</span>
+                </Label>
+                <Textarea id="description" value={formData.description} onChange={(e) => handleChange("description", e.target.value)} placeholder="Jelaskan detail jasa yang Anda tawarkan..." rows={5} maxLength={2000} />
+                {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
+                <p className="text-xs text-muted-foreground">{formData.description.length}/2000 karakter</p>
+              </div>
 
-            {/* Category */}
-            <div className="space-y-2">
-              <Label htmlFor="category">
-                Kategori <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) => handleChange("category", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih Kategori" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.category && (
-                <p className="text-sm text-destructive">{errors.category}</p>
-              )}
-            </div>
+              {/* Category */}
+              <div className="space-y-2">
+                <Label htmlFor="category">
+                  Kategori <span className="text-destructive">*</span>
+                </Label>
+                <Select value={formData.category} onValueChange={(value) => handleChange("category", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih Kategori" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SERVICE_CATEGORIES_LIST.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.category && <p className="text-sm text-destructive">{errors.category}</p>}
+              </div>
 
-            {/* Price */}
-            <div className="space-y-2">
-              <Label htmlFor="price">
-                Harga (Rp) <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="price"
-                type="number"
-                value={formData.price || ""}
-                onChange={(e) => handleChange("price", Number(e.target.value))}
-                placeholder="50000"
-                min={0}
-                max={10000000}
-              />
-              {errors.price && (
-                <p className="text-sm text-destructive">{errors.price}</p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Maksimal Rp 10.000.000
-              </p>
-            </div>
+              {/* Price */}
+              <div className="space-y-2">
+                <Label htmlFor="price">
+                  Harga (Rp) <span className="text-destructive">*</span>
+                </Label>
+                <Input id="price" type="number" value={formData.price || ""} onChange={(e) => handleChange("price", Number(e.target.value))} placeholder="50000" min={0} max={10000000} />
+                {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
+                <p className="text-xs text-muted-foreground">Maksimal Rp 10.000.000</p>
+              </div>
 
               {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="deliveryTime">
-                  Waktu Pengerjaan (hari){" "}
-                  <span className="text-destructive">*</span>
+                  Waktu Pengerjaan (hari) <span className="text-destructive">*</span>
                 </Label>
-                <Input
-                  id="deliveryTime"
-                  type="number"
-                  value={formData.deliveryTime || ""}
-                  onChange={(e) =>
-                    handleChange("deliveryTime", Number(e.target.value))
-                  }
-                  placeholder="7"
-                  min={1}
-                  max={90}
-                />
-                {errors.deliveryTime && (
-                  <p className="text-sm text-destructive">
-                    {errors.deliveryTime}
-                  </p>
-                )}
+                <Input id="deliveryTime" type="number" value={formData.deliveryTime || ""} onChange={(e) => handleChange("deliveryTime", Number(e.target.value))} placeholder="7" min={1} max={90} />
+                {errors.deliveryTime && <p className="text-sm text-destructive">{errors.deliveryTime}</p>}
               </div>
 
               {/* Category */}
               <div className="space-y-2">
                 <Label htmlFor="revisions">Jumlah Revisi</Label>
-                <Input
-                  id="revisions"
-                  type="number"
-                  value={formData.revisions || ""}
-                  onChange={(e) =>
-                    handleChange("revisions", Number(e.target.value))
-                  }
-                  placeholder="1"
-                  min={0}
-                  max={10}
-                />
-              </div>
-
-            {/* Images */}
-            <div className="space-y-2">
-              <Label>
-                Gambar Jasa <span className="text-destructive">*</span>
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  disabled={formData.images.length >= 5 || uploading}
-                  className="flex-1"
-                />
-                {uploading && (
-                  <div className="flex items-center text-sm text-muted-foreground px-2">
-                    <TbLoader className="animate-spin mr-2" />
-                    Mengupload...
-                  </div>
-
-                  <Input
-                    id="revisions"
-                    type="number"
-                    value={formData.revisions || ""}
-                    onChange={(e) => handleChange("revisions", Number(e.target.value))}
-                    placeholder="Jumlah revisi"
-                    min={1}
-                    max={10}
-                    disabled={!formData.allowRevisions}
-                    className={`transition-opacity ${!formData.allowRevisions ? 'opacity-50 cursor-not-allowed bg-muted' : ''}`}
-                  />
-                </div>
+                <Input id="revisions" type="number" value={formData.revisions || ""} onChange={(e) => handleChange("revisions", Number(e.target.value))} placeholder="1" min={0} max={10} />
               </div>
 
               {/* Pricing Details Section */}
@@ -463,9 +327,7 @@ const ServiceForm = ({
                       <SelectItem value="CUSTOM">⚙️ Custom (dijelaskan di deskripsi)</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Pilih model pricing yang sesuai dengan jasa Anda
-                  </p>
+                  <p className="text-xs text-muted-foreground">Pilih model pricing yang sesuai dengan jasa Anda</p>
                 </div>
 
                 {(formData.pricingType === "FIXED" || formData.pricingType === "CUSTOM") && (
@@ -473,34 +335,33 @@ const ServiceForm = ({
                     <Label htmlFor="price">
                       {formData.pricingType === "CUSTOM" ? "Kisaran Harga (Rp)" : "Harga (Rp)"} <span className="text-destructive">*</span>
                     </Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      value={formData.price || ""}
-                      onChange={(e) => handleChange("price", Number(e.target.value))}
-                      placeholder="50000"
-                      min={0}
-                      max={10000000}
-                    />
+                    <Input id="price" type="number" value={formData.price || ""} onChange={(e) => handleChange("price", Number(e.target.value))} placeholder="50000" min={0} max={10000000} />
                     {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
                     <p className="text-xs text-muted-foreground">Maksimal Rp 10.000.000</p>
                   </div>
                 )}
 
-                {formData.pricingType && formData.pricingType !== 'FIXED' && formData.pricingType !== 'CUSTOM' && (
+                {formData.pricingType && formData.pricingType !== "FIXED" && formData.pricingType !== "CUSTOM" && (
                   <>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="pricePerUnit">
-                          Harga Per {
-                            formData.pricingType === 'PER_PAGE' ? 'Halaman' :
-                              formData.pricingType === 'PER_WORD' ? 'Kata' :
-                                formData.pricingType === 'PER_HOUR' ? 'Jam' :
-                                  formData.pricingType === 'PER_ITEM' ? 'Item' :
-                                    formData.pricingType === 'PER_MINUTE' ? 'Menit' :
-                                      formData.pricingType === 'PER_QUESTION' ? 'Soal' :
-                                        formData.pricingType === 'PER_SLIDE' ? 'Slide' : 'Unit'
-                          }
+                          Harga Per{" "}
+                          {formData.pricingType === "PER_PAGE"
+                            ? "Halaman"
+                            : formData.pricingType === "PER_WORD"
+                            ? "Kata"
+                            : formData.pricingType === "PER_HOUR"
+                            ? "Jam"
+                            : formData.pricingType === "PER_ITEM"
+                            ? "Item"
+                            : formData.pricingType === "PER_MINUTE"
+                            ? "Menit"
+                            : formData.pricingType === "PER_QUESTION"
+                            ? "Soal"
+                            : formData.pricingType === "PER_SLIDE"
+                            ? "Slide"
+                            : "Unit"}
                         </Label>
                         <Input
                           id="pricePerUnit"
@@ -508,8 +369,8 @@ const ServiceForm = ({
                           value={formData.pricePerUnit || ""}
                           onChange={(e) => {
                             const val = Number(e.target.value);
-                            setFormData(prev => ({ ...prev, pricePerUnit: val, price: val }));
-                            if (errors.price) setErrors(prev => ({ ...prev, price: "" }));
+                            setFormData((prev) => ({ ...prev, pricePerUnit: val, price: val }));
+                            if (errors.price) setErrors((prev) => ({ ...prev, price: "" }));
                           }}
                           placeholder="5000"
                           min={0}
@@ -519,36 +380,30 @@ const ServiceForm = ({
 
                       <div className="space-y-2">
                         <Label htmlFor="minimumOrder">Minimal Order</Label>
-                        <Input
-                          id="minimumOrder"
-                          type="number"
-                          value={formData.minimumOrder || ""}
-                          onChange={(e) => handleChange("minimumOrder", Number(e.target.value))}
-                          placeholder="5"
-                          min={1}
-                        />
+                        <Input id="minimumOrder" type="number" value={formData.minimumOrder || ""} onChange={(e) => handleChange("minimumOrder", Number(e.target.value))} placeholder="5" min={1} />
                         <p className="text-xs text-muted-foreground">
-                          Misal: minimal 5 {
-                            formData.pricingType === 'PER_PAGE' ? 'halaman' :
-                              formData.pricingType === 'PER_WORD' ? 'kata' :
-                                formData.pricingType === 'PER_HOUR' ? 'jam' :
-                                  formData.pricingType === 'PER_ITEM' ? 'item' :
-                                    formData.pricingType === 'PER_MINUTE' ? 'menit' :
-                                      formData.pricingType === 'PER_QUESTION' ? 'soal' :
-                                        formData.pricingType === 'PER_SLIDE' ? 'slide' : 'unit'
-                          }
+                          Misal: minimal 5{" "}
+                          {formData.pricingType === "PER_PAGE"
+                            ? "halaman"
+                            : formData.pricingType === "PER_WORD"
+                            ? "kata"
+                            : formData.pricingType === "PER_HOUR"
+                            ? "jam"
+                            : formData.pricingType === "PER_ITEM"
+                            ? "item"
+                            : formData.pricingType === "PER_MINUTE"
+                            ? "menit"
+                            : formData.pricingType === "PER_QUESTION"
+                            ? "soal"
+                            : formData.pricingType === "PER_SLIDE"
+                            ? "slide"
+                            : "unit"}
                         </p>
                       </div>
                     </div>
                   </>
                 )}
               </div>
-              {errors.images && (
-                <p className="text-sm text-destructive">{errors.images}</p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                {formData.images.length}/5 gambar
-              </p>
 
               {/* Service Details Section */}
               <div className="space-y-4 pt-4 border-t">
@@ -564,9 +419,7 @@ const ServiceForm = ({
                     rows={3}
                     maxLength={1000}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    {(formData.requirements?.length || 0)}/1000 karakter
-                  </p>
+                  <p className="text-xs text-muted-foreground">{formData.requirements?.length || 0}/1000 karakter</p>
                 </div>
 
                 <div className="space-y-2">
@@ -579,9 +432,7 @@ const ServiceForm = ({
                     rows={3}
                     maxLength={1000}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    {(formData.whatsIncluded?.length || 0)}/1000 karakter
-                  </p>
+                  <p className="text-xs text-muted-foreground">{formData.whatsIncluded?.length || 0}/1000 karakter</p>
                 </div>
 
                 <div className="space-y-2">
@@ -594,9 +445,7 @@ const ServiceForm = ({
                     rows={2}
                     maxLength={500}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    {(formData.additionalInfo?.length || 0)}/500 karakter
-                  </p>
+                  <p className="text-xs text-muted-foreground">{formData.additionalInfo?.length || 0}/500 karakter</p>
                 </div>
               </div>
 
@@ -609,34 +458,14 @@ const ServiceForm = ({
                   <p className="text-xs text-muted-foreground">{formData.images.length}/5 gambar</p>
                 </div>
 
-                <Input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  disabled={formData.images.length >= 5 || uploading}
-                  className="hidden"
-                />
+                <Input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} disabled={formData.images.length >= 5 || uploading} className="hidden" />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Existing Images */}
                   {formData.images.map((url, index) => (
-                    <div
-                      key={index}
-                      className="relative group w-full h-32 rounded-md overflow-hidden"
-                    >
-                      <Image
-                        src={url}
-                        alt={`Preview ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 50vw, 33vw"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(index)}
-                        className="absolute top-1 right-1 bg-destructive text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                      >
+                    <div key={index} className="relative group w-full h-32 rounded-md overflow-hidden">
+                      <Image src={url} alt={`Preview ${index + 1}`} fill className="object-cover" sizes="(max-width: 768px) 50vw, 33vw" />
+                      <button type="button" onClick={() => handleRemoveImage(index)} className="absolute top-1 right-1 bg-destructive text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
                         <TbX className="h-4 w-4" />
                       </button>
                     </div>
@@ -649,10 +478,7 @@ const ServiceForm = ({
                       className={`
                       relative aspect-[16/9] rounded-lg border-2 border-dashed 
                       flex flex-col items-center justify-center cursor-pointer transition-all
-                      ${uploading
-                          ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
-                          : 'border-gray-300 hover:border-primary hover:bg-primary/5'
-                        }
+                      ${uploading ? "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed" : "border-gray-300 hover:border-primary hover:bg-primary/5"}
                     `}
                     >
                       {uploading ? (
@@ -692,37 +518,15 @@ const ServiceForm = ({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Sesuaikan Gambar Jasa</DialogTitle>
-            <DialogDescription>
-              Sesuaikan area gambar yang akan ditampilkan. Rasio gambar 16:9.
-            </DialogDescription>
+            <DialogDescription>Sesuaikan area gambar yang akan ditampilkan. Rasio gambar 16:9.</DialogDescription>
           </DialogHeader>
 
           <div className="relative h-64 w-full bg-slate-900 rounded-md overflow-hidden mt-4">
-            {imageSrc && (
-              <Cropper
-                image={imageSrc || undefined}
-                crop={crop}
-                zoom={zoom}
-                rotation={rotation}
-                aspect={16 / 9}
-                onCropChange={setCrop}
-                onCropComplete={onCropComplete}
-                onZoomChange={setZoom}
-              />
-            )}
+            {imageSrc && <Cropper image={imageSrc || undefined} crop={crop} zoom={zoom} rotation={rotation} aspect={16 / 9} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} />}
           </div>
-        </form>
 
-        <DrawerFooter>
-          <Button onClick={handleSubmit} disabled={loading} className="w-full">
-            {loading
-              ? "Menyimpan..."
-              : mode === "create"
-              ? "Buat Jasa"
-              : "Simpan Perubahan"}
-          </Button>
-          <DrawerClose asChild>
-            <Button variant="outline" className="w-full">
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setIsCropping(false)}>
               Batal
             </Button>
             <Button onClick={handleCropConfirm} disabled={uploading}>
