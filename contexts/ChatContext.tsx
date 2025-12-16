@@ -214,9 +214,11 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
     const newSocket = io(SOCKET_URL, {
       auth: { token },
-      transports: ["websocket"],
+      transports: ["polling", "websocket"], // Polling first, then upgrade to websocket (better for ngrok)
       reconnection: true,
       reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 20000, // Increase timeout for ngrok latency
     });
 
     newSocket.on("connect", () => {
