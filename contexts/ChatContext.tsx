@@ -236,6 +236,9 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("✅ [Frontend] Socket Connected to:", SOCKET_URL);
       console.log("   Socket ID:", newSocket.id);
       console.log("   Transport:", newSocket.io.engine.transport.name);
+      console.log("✅ [Frontend] Socket Connected to:", SOCKET_URL);
+      console.log("   Socket ID:", newSocket.id);
+      console.log("   Transport:", newSocket.io.engine.transport.name);
       setIsConnected(true);
       if (
         activeConversationRef.current &&
