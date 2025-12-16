@@ -224,7 +224,7 @@ const ServiceDetailPage = () => {
 
   return (
     <PublicLayout>
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen  py-8">
         <div className="container mx-auto px-4">
           {/* Status Banner for Owner */}
           {isOwner && service.status === "PENDING" && (
@@ -410,8 +410,10 @@ const ServiceDetailPage = () => {
                     {/* Freelancer Tab */}
                     <TabsContent value="freelancer" className="space-y-4">
                       <div
-                        className="flex items-start gap-4 cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors -mx-4"
-                        onClick={() => router.push(`/profile/${service.seller.id}`)}
+                        className="flex items-start gap-4 cursor-pointer p-4 rounded-lg transition-colors -mx-4"
+                        onClick={() =>
+                          router.push(`/profile/${service.seller.id}`)
+                        }
                       >
                         <Avatar className="h-20 w-20">
                           <AvatarImage
@@ -452,7 +454,9 @@ const ServiceDetailPage = () => {
                                         className="text-muted-foreground hover:text-destructive h-auto py-1 px-2"
                                       >
                                         <TbFlag className="w-4 h-4 mr-1" />
-                                        <span className="text-xs">Laporkan</span>
+                                        <span className="text-xs">
+                                          Laporkan
+                                        </span>
                                       </Button>
                                     }
                                   />
@@ -531,10 +535,11 @@ const ServiceDetailPage = () => {
                                     {[...Array(5)].map((_, i) => (
                                       <TbStar
                                         key={i}
-                                        className={`h-4 w-4 ${i < review.rating
-                                          ? "fill-yellow-400 text-yellow-400"
-                                          : "text-gray-300"
-                                          }`}
+                                        className={`h-4 w-4 ${
+                                          i < review.rating
+                                            ? "fill-yellow-400 text-yellow-400"
+                                            : "text-gray-300"
+                                        }`}
                                       />
                                     ))}
                                   </div>
@@ -637,8 +642,8 @@ const ServiceDetailPage = () => {
                       {isOwner
                         ? "Jasa Anda Sendiri"
                         : isInactive
-                          ? "Jasa Tidak Tersedia"
-                          : "Pesan Sekarang"}
+                        ? "Jasa Tidak Tersedia"
+                        : "Pesan Sekarang"}
                     </Button>
 
                     <Button
@@ -652,8 +657,8 @@ const ServiceDetailPage = () => {
                       {isOwner
                         ? "Jasa Anda Sendiri"
                         : isInactive
-                          ? "Jasa Tidak Tersedia"
-                          : "Chat Penyedia"}
+                        ? "Jasa Tidak Tersedia"
+                        : "Chat Penyedia"}
                     </Button>
                     {!isAuthenticated && (
                       <p className="text-xs text-center text-gray-500">

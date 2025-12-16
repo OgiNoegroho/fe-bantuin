@@ -43,7 +43,9 @@ const SellerActivate = () => {
 
   // OTP Verification states
   const [isOtpDialogOpen, setIsOtpDialogOpen] = useState(false);
-  const [verificationStep, setVerificationStep] = useState<"request" | "verify">("request");
+  const [verificationStep, setVerificationStep] = useState<
+    "request" | "verify"
+  >("request");
   const [otpInput, setOtpInput] = useState("");
   const [isSubmittingOtp, setIsSubmittingOtp] = useState(false);
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
@@ -176,7 +178,7 @@ const SellerActivate = () => {
 
   return (
     <PublicLayout>
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen  py-12">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Back Button */}
           <Link href="/">
@@ -251,7 +253,7 @@ const SellerActivate = () => {
             <CardContent>
               <form onSubmit={handleActivate} className="space-y-6">
                 {/* User Info Display */}
-                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                <div className=" p-4 rounded-lg space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Nama:</span>
                     <span className="font-medium">{user.fullName}</span>
@@ -466,7 +468,7 @@ const SellerActivate = () => {
                   id="verify-phone"
                   value={phoneNumber}
                   disabled
-                  className="bg-gray-50"
+                  className=""
                 />
                 <p className="text-xs text-muted-foreground">
                   Kode OTP akan dikirim ke nomor ini

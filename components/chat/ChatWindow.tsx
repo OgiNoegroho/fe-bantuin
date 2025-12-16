@@ -147,7 +147,7 @@ export const ChatWindow = () => {
   return (
     <div className="flex flex-col h-full bg-white">
       {/* AREA PESAN */}
-      <div className="flex-1 h-0 overflow-hidden bg-gray-50/50">
+      <div className="flex-1 h-0 overflow-hidden /50">
         <ScrollArea className="h-full px-3 py-3">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-muted-foreground text-xs text-center px-4 min-h-[300px]">
@@ -281,7 +281,7 @@ export const ChatWindow = () => {
 
       {/* PREVIEW JASA */}
       {pendingService && (
-        <div className="px-3 py-2 bg-gray-50 border-t border-gray-100 flex items-center justify-between animate-in slide-in-from-bottom-2">
+        <div className="px-3 py-2  border-t border-gray-100 flex items-center justify-between animate-in slide-in-from-bottom-2">
           <div className="flex gap-3 items-center overflow-hidden">
             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-white border">
               {pendingService.image && (

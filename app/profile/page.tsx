@@ -75,9 +75,9 @@ export default function ProfilePage() {
   const [isPhoneDialogOpen, setIsPhoneDialogOpen] = useState(false);
   const [phoneNumberInput, setPhoneNumberInput] = useState("");
   const [otpInput, setOtpInput] = useState("");
-  const [verificationStep, setVerificationStep] = useState<"request" | "verify">(
-    "request"
-  );
+  const [verificationStep, setVerificationStep] = useState<
+    "request" | "verify"
+  >("request");
   const [isSubmittingPhone, setIsSubmittingPhone] = useState(false);
 
   // State untuk Bio Edit
@@ -95,7 +95,7 @@ export default function ProfilePage() {
     linkedin: "",
     twitter: "",
     website: "",
-    github: ""
+    github: "",
   });
   const [isSubmittingSocial, setIsSubmittingSocial] = useState(false);
 
@@ -110,7 +110,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user?.socialMedia) {
       // @ts-ignore - Assuming socialMedia matches structure
-      setSocialInput(prev => ({ ...prev, ...user.socialMedia }));
+      setSocialInput((prev) => ({ ...prev, ...user.socialMedia }));
     }
   }, [user]);
 
@@ -147,7 +147,9 @@ export default function ProfilePage() {
       }
 
       // Create a file from the blob
-      const file = new File([croppedImage], "cover.jpg", { type: "image/jpeg" });
+      const file = new File([croppedImage], "cover.jpg", {
+        type: "image/jpeg",
+      });
 
       // Upload using generic account photo upload
       const uploadRes = await uploadAccountPhoto(file, user.fullName, user.nim);
@@ -362,11 +364,15 @@ export default function ProfilePage() {
 
   return (
     <PublicLayout>
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen  py-12">
         <div className="container mx-auto px-4 max-w-5xl">
           {/* 1. Profile Header Card */}
           <Card className="mb-8 border-none shadow-md overflow-hidden">
-            <div className={`h-32 relative bg-gray-200 group overflow-hidden ${isCoverUploading ? 'animate-pulse' : ''}`}>
+            <div
+              className={`h-32 relative bg-gray-200 group overflow-hidden ${
+                isCoverUploading ? "animate-pulse" : ""
+              }`}
+            >
               {user.coverPicture ? (
                 <Image
                   key={user.coverPicture}
@@ -562,48 +568,84 @@ export default function ProfilePage() {
                 {/* Media Sosial */}
                 <Card className="md:col-span-3">
                   <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                    <CardTitle className="text-lg font-medium">Media Sosial</CardTitle>
-                    <Button variant="ghost" size="icon" onClick={() => setIsSocialDialogOpen(true)}>
+                    <CardTitle className="text-lg font-medium">
+                      Media Sosial
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsSocialDialogOpen(true)}
+                    >
                       <TbEdit className="h-4 w-4" />
                     </Button>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-4">
-                      {(!user.socialMedia || Object.values(user.socialMedia).every(v => !v || v === "")) && (
-                        <p className="text-muted-foreground text-sm italic">Belum ada media sosial yang ditautkan.</p>
+                      {(!user.socialMedia ||
+                        Object.values(user.socialMedia).every(
+                          (v) => !v || v === ""
+                        )) && (
+                        <p className="text-muted-foreground text-sm italic">
+                          Belum ada media sosial yang ditautkan.
+                        </p>
                       )}
 
                       {/* @ts-ignore */}
                       {user.socialMedia?.instagram && (
-                        <a href={user.socialMedia.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-pink-50 text-pink-600 rounded-full hover:bg-pink-100 transition-colors">
+                        <a
+                          href={user.socialMedia.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-4 py-2 bg-pink-50 text-pink-600 rounded-full hover:bg-pink-100 transition-colors"
+                        >
                           <TbBrandInstagram className="h-5 w-5" />
                           <span className="font-medium">Instagram</span>
                         </a>
                       )}
                       {/* @ts-ignore */}
                       {user.socialMedia?.linkedin && (
-                        <a href={user.socialMedia.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors">
+                        <a
+                          href={user.socialMedia.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors"
+                        >
                           <TbBrandLinkedin className="h-5 w-5" />
                           <span className="font-medium">LinkedIn</span>
                         </a>
                       )}
                       {/* @ts-ignore */}
                       {user.socialMedia?.twitter && (
-                        <a href={user.socialMedia.twitter} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-sky-50 text-sky-500 rounded-full hover:bg-sky-100 transition-colors">
+                        <a
+                          href={user.socialMedia.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-4 py-2 bg-sky-50 text-sky-500 rounded-full hover:bg-sky-100 transition-colors"
+                        >
                           <TbBrandTwitter className="h-5 w-5" />
                           <span className="font-medium">Twitter / X</span>
                         </a>
                       )}
                       {/* @ts-ignore */}
                       {user.socialMedia?.github && (
-                        <a href={user.socialMedia.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors">
+                        <a
+                          href={user.socialMedia.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors"
+                        >
                           <TbBrandGithub className="h-5 w-5" />
                           <span className="font-medium">GitHub</span>
                         </a>
                       )}
                       {/* @ts-ignore */}
                       {user.socialMedia?.website && (
-                        <a href={user.socialMedia.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-full hover:bg-green-100 transition-colors">
+                        <a
+                          href={user.socialMedia.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-full hover:bg-green-100 transition-colors"
+                        >
                           <TbWorld className="h-5 w-5" />
                           <span className="font-medium">Website</span>
                         </a>
@@ -668,8 +710,8 @@ export default function ProfilePage() {
                             {loadingStats
                               ? "..."
                               : sellerStats
-                                ? formatCurrency(sellerStats.stats.totalRevenue)
-                                : "Rp 0"}
+                              ? formatCurrency(sellerStats.stats.totalRevenue)
+                              : "Rp 0"}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -746,7 +788,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-
       <Dialog open={isPhoneDialogOpen} onOpenChange={setIsPhoneDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -815,7 +856,8 @@ export default function ProfilePage() {
           <DialogHeader>
             <DialogTitle>Ubah Bio / Deskripsi Diri</DialogTitle>
             <DialogDescription>
-              Ceritakan sedikit tentang diri Anda, keahlian, atau pengalaman yang relevan.
+              Ceritakan sedikit tentang diri Anda, keahlian, atau pengalaman
+              yang relevan.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -843,29 +885,70 @@ export default function ProfilePage() {
           <DialogHeader>
             <DialogTitle>Edit Media Sosial</DialogTitle>
             <DialogDescription>
-              Tautkan akun media sosial agar orang lain dapat lebih mudah menghubungi Anda.
+              Tautkan akun media sosial agar orang lain dapat lebih mudah
+              menghubungi Anda.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><TbBrandInstagram /> Instagram (URL)</Label>
-              <Input placeholder="https://instagram.com/username" value={socialInput.instagram} onChange={e => setSocialInput({ ...socialInput, instagram: e.target.value })} />
+              <Label className="flex items-center gap-2">
+                <TbBrandInstagram /> Instagram (URL)
+              </Label>
+              <Input
+                placeholder="https://instagram.com/username"
+                value={socialInput.instagram}
+                onChange={(e) =>
+                  setSocialInput({ ...socialInput, instagram: e.target.value })
+                }
+              />
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><TbBrandLinkedin /> LinkedIn (URL)</Label>
-              <Input placeholder="https://linkedin.com/in/username" value={socialInput.linkedin} onChange={e => setSocialInput({ ...socialInput, linkedin: e.target.value })} />
+              <Label className="flex items-center gap-2">
+                <TbBrandLinkedin /> LinkedIn (URL)
+              </Label>
+              <Input
+                placeholder="https://linkedin.com/in/username"
+                value={socialInput.linkedin}
+                onChange={(e) =>
+                  setSocialInput({ ...socialInput, linkedin: e.target.value })
+                }
+              />
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><TbBrandTwitter /> Twitter / X (URL)</Label>
-              <Input placeholder="https://twitter.com/username" value={socialInput.twitter} onChange={e => setSocialInput({ ...socialInput, twitter: e.target.value })} />
+              <Label className="flex items-center gap-2">
+                <TbBrandTwitter /> Twitter / X (URL)
+              </Label>
+              <Input
+                placeholder="https://twitter.com/username"
+                value={socialInput.twitter}
+                onChange={(e) =>
+                  setSocialInput({ ...socialInput, twitter: e.target.value })
+                }
+              />
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><TbBrandGithub /> GitHub (URL)</Label>
-              <Input placeholder="https://github.com/username" value={socialInput.github} onChange={e => setSocialInput({ ...socialInput, github: e.target.value })} />
+              <Label className="flex items-center gap-2">
+                <TbBrandGithub /> GitHub (URL)
+              </Label>
+              <Input
+                placeholder="https://github.com/username"
+                value={socialInput.github}
+                onChange={(e) =>
+                  setSocialInput({ ...socialInput, github: e.target.value })
+                }
+              />
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><TbWorld /> Website / Portfolio (URL)</Label>
-              <Input placeholder="https://yourwebsite.com" value={socialInput.website} onChange={e => setSocialInput({ ...socialInput, website: e.target.value })} />
+              <Label className="flex items-center gap-2">
+                <TbWorld /> Website / Portfolio (URL)
+              </Label>
+              <Input
+                placeholder="https://yourwebsite.com"
+                value={socialInput.website}
+                onChange={(e) =>
+                  setSocialInput({ ...socialInput, website: e.target.value })
+                }
+              />
             </div>
           </div>
           <DialogFooter>
@@ -881,7 +964,8 @@ export default function ProfilePage() {
           <DialogHeader>
             <DialogTitle>Sesuaikan Foto Sampul</DialogTitle>
             <DialogDescription>
-              Geser dan zoom untuk menyesuaikan tampilan foto sampul profil Anda.
+              Geser dan zoom untuk menyesuaikan tampilan foto sampul profil
+              Anda.
             </DialogDescription>
           </DialogHeader>
 
@@ -928,12 +1012,15 @@ export default function ProfilePage() {
             <Button variant="outline" onClick={() => setIsCroppingCover(false)}>
               Batal
             </Button>
-            <Button onClick={handleCoverCropConfirm} disabled={isCoverUploading}>
+            <Button
+              onClick={handleCoverCropConfirm}
+              disabled={isCoverUploading}
+            >
               {isCoverUploading ? "Mengupload..." : "Simpan Gambar"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </PublicLayout >
+    </PublicLayout>
   );
 }

@@ -312,7 +312,7 @@ const SellerStatsPage = () => {
                 {stats.services.map((service) => (
                   <div
                     key={service.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-4 border rounded-lg transition-colors"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">

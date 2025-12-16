@@ -82,11 +82,6 @@ const Header = () => {
             </li>
             <li>
               <Button variant="link">
-                <Link href="/who">Tentang Kami</Link>
-              </Button>
-            </li>
-            <li>
-              <Button variant="link">
                 <Link href="/how">Cara Kerja</Link>
               </Button>
             </li>
@@ -213,11 +208,6 @@ const Header = () => {
               </li>
               <li>
                 <Button variant="ghost" className="w-full justify-start">
-                  <Link href="/who">Tentang Kami</Link>
-                </Button>
-              </li>
-              <li>
-                <Button variant="ghost" className="w-full justify-start">
                   <Link href="/how">Cara Kerja</Link>
                 </Button>
               </li>
@@ -265,7 +255,11 @@ const Header = () => {
                     <Link href="/seller/dashboard">Jadi Penyedia</Link>
                   </Button>
 
-                  <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    asChild
+                  >
                     <Link href="/profile">
                       <FiUser className="mr-2 h-4 w-4" />
                       Profil Saya

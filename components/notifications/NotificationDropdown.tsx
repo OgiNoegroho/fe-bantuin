@@ -81,7 +81,7 @@ const NotificationItem: React.FC<{ notification: Notification }> = ({
       <div className="flex items-start gap-3">
         {getIcon(notification.type)}
         <div className="flex-1 min-w-0">
-          <p className={cn("text-sm break-words leading-tight", textColor)}>
+          <p className={cn("text-sm wrap-break-word leading-tight", textColor)}>
             {notification.content}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
@@ -109,7 +109,8 @@ const NotificationDropdown = () => {
     await markAllAsRead();
   };
 
-  const [permission, setPermission] = React.useState<NotificationPermission>("default");
+  const [permission, setPermission] =
+    React.useState<NotificationPermission>("default");
   const [isSubscribed, setIsSubscribed] = React.useState(false);
 
   React.useEffect(() => {
@@ -125,8 +126,9 @@ const NotificationDropdown = () => {
 
         // RESYNC: If we have a subscription, ensure backend has it too (in case of server restart)
         if (sub) {
-          apiClient.post("/notifications/subscribe", sub)
-            .catch(err => console.error("Failed to resync sub:", err));
+          apiClient
+            .post("/notifications/subscribe", sub)
+            .catch((err) => console.error("Failed to resync sub:", err));
         } else {
           // AUTO SUBSCRIBE
           handleSubscribe();
@@ -146,7 +148,7 @@ const NotificationDropdown = () => {
       const permissionResult = await Notification.requestPermission();
       setPermission(permissionResult);
 
-      if (permissionResult === 'granted') {
+      if (permissionResult === "granted") {
         function urlBase64ToUint8Array(base64String: string) {
           const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
           const base64 = (base64String + padding)
@@ -193,8 +195,11 @@ const NotificationDropdown = () => {
       if (subscription) {
         await subscription.unsubscribe();
         // Notify backend to remove subscription
-        await apiClient.post("/notifications/unsubscribe", { endpoint: subscription.endpoint })
-          .catch(() => { });
+        await apiClient
+          .post("/notifications/unsubscribe", {
+            endpoint: subscription.endpoint,
+          })
+          .catch(() => {});
       }
       setIsSubscribed(false);
     } catch (error) {
@@ -231,7 +236,9 @@ const NotificationDropdown = () => {
 
       <DropdownMenuContent align="end" className="w-80 p-0 overflow-hidden">
         <div className="flex justify-between items-center px-4 py-2">
-          <DropdownMenuLabel className="p-0 text-lg font-bold text-primary">Notifikasi</DropdownMenuLabel>
+          <DropdownMenuLabel className="p-0 text-lg font-bold text-primary">
+            Notifikasi
+          </DropdownMenuLabel>
 
           {hasNotifications && (
             <Button
@@ -277,14 +284,16 @@ const NotificationDropdown = () => {
           {notifications?.map((notif, index) => (
             <React.Fragment key={notif.id}>
               <NotificationItem notification={notif} />
-              {index < notifications.length - 1 && <DropdownMenuSeparator className="m-0" />}
+              {index < notifications.length - 1 && (
+                <DropdownMenuSeparator className="m-0" />
+              )}
             </React.Fragment>
           ))}
         </ScrollArea>
 
         {/* Footer Actions */}
         {isSubscribed && (
-          <div className="p-2 border-t mt-auto text-center bg-gray-50 flex flex-col gap-1">
+          <div className="p-2 border-t mt-auto text-center  flex flex-col gap-1">
             <Button
               variant="link"
               size="sm"

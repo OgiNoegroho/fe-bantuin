@@ -90,7 +90,7 @@ function HomePageContent() {
       </section>
 
       {/* Section: Top Sellers */}
-      <section className="py-16 bg-gray-50 border-y border-gray-100">
+      <section className="py-16  border-y border-gray-100">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <span className="inline-flex items-center justify-center p-3 bg-yellow-100 rounded-full mb-4">
@@ -135,7 +135,7 @@ function HomePageContent() {
                       {seller.major || "Mahasiswa UIN Suska"}
                     </p>
 
-                    <div className="flex items-center justify-center gap-4 w-full py-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-center gap-4 w-full py-3  rounded-lg">
                       <div className="text-center">
                         <div className="flex items-center gap-1 justify-center font-bold text-foreground">
                           <TbStar className="h-4 w-4 text-yellow-400 fill-yellow-400" />

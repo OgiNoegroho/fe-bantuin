@@ -23,7 +23,7 @@ export default function NotFound() {
                     404
                   </h1>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="bg-gradient-to-br from-primary to-secondary rounded-full p-8 shadow-lg">
+                    <div className="bg-linear-to-br from-primary to-secondary rounded-full p-8 shadow-lg">
                       <TbSearch className="h-16 w-16 text-white" />
                     </div>
                   </div>
@@ -35,16 +35,17 @@ export default function NotFound() {
                     Halaman Tidak Ditemukan
                   </h2>
                   <p className="text-muted-foreground text-lg">
-                    Maaf, halaman yang kamu cari tidak ada atau sudah dipindahkan.
+                    Maaf, halaman yang kamu cari tidak ada atau sudah
+                    dipindahkan.
                   </p>
                 </div>
 
                 {/* Description */}
                 <div className="pt-4 space-y-4">
                   <p className="text-muted-foreground">
-                    Mungkin kamu salah ketik URL, atau halaman ini sudah dihapus.
-                    Coba kembali ke halaman utama atau gunakan menu navigasi untuk
-                    menemukan apa yang kamu cari.
+                    Mungkin kamu salah ketik URL, atau halaman ini sudah
+                    dihapus. Coba kembali ke halaman utama atau gunakan menu
+                    navigasi untuk menemukan apa yang kamu cari.
                   </p>
                 </div>
 
@@ -59,11 +60,7 @@ export default function NotFound() {
                     <TbArrowLeft className="mr-2 h-5 w-5" />
                     Kembali
                   </Button>
-                  <Button
-                    asChild
-                    size="lg"
-                    className="w-full sm:w-auto"
-                  >
+                  <Button asChild size="lg" className="w-full sm:w-auto">
                     <Link href="/">
                       <TbHome className="mr-2 h-5 w-5" />
                       Ke Halaman Utama
@@ -105,4 +102,3 @@ export default function NotFound() {
     </PublicLayout>
   );
 }
-

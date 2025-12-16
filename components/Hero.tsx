@@ -14,7 +14,17 @@ const Hero = () => {
   return (
     <section className="relative w-full h-[70vh] overflow-hidden">
       {/* Image Placeholder Background */}
-      <Image src={imageSrc} alt="Bantuin background placeholder" fill priority sizes="100vw" unoptimized className={`object-cover transition-opacity duration-700 ${isVideoLoaded ? "opacity-0" : "opacity-100"}`} />
+      <Image
+        src={imageSrc}
+        alt="Bantuin background placeholder"
+        fill
+        priority
+        sizes="100vw"
+        unoptimized
+        className={`object-cover transition-opacity duration-700 ${
+          isVideoLoaded ? "opacity-0" : "opacity-100"
+        }`}
+      />
 
       {/* Video Background with smooth fade-in */}
       <video
@@ -24,14 +34,16 @@ const Hero = () => {
         playsInline
         preload="auto"
         onCanPlay={() => setIsVideoLoaded(true)}
-        className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-700 ${isVideoLoaded ? "opacity-100" : "opacity-0"}`}
+        className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-700 ${
+          isVideoLoaded ? "opacity-100" : "opacity-0"
+        }`}
       >
         <source src={videoSrc} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
       {/* Dark Overlay */}
-      <div className="absolute top-0 left-0 w-full h-full bg-black/90"></div>
+      <div className="absolute top-0 left-0 w-full h-full bg-black/70"></div>
 
       {/* Content */}
       <div className="relative z-10 flex flex-col justify-center h-full px-4 sm:px-6 md:px-12 lg:px-48">
@@ -39,7 +51,10 @@ const Hero = () => {
           Temukan Bantuan di <span className="text-secondary">Bantuin</span>
         </h1>
 
-        <p className="text-white/90 text-base sm:text-lg md:text-xl max-w-3xl">Platform marketplace jasa yang bakal ngehubungin antara si penyedia dan pengguna jasa oleh dan buat mahasiswa di kampus UIN Suska Riau</p>
+        <p className="text-white/90 text-base sm:text-lg md:text-xl max-w-3xl">
+          Platform marketplace jasa yang bakal ngehubungin antara si penyedia
+          dan pengguna jasa oleh dan buat mahasiswa di kampus UIN Suska Riau
+        </p>
 
         {/* Optional: Search Bar */}
         <div className="mt-12 w-full max-w-2xl">
@@ -49,7 +64,9 @@ const Hero = () => {
               placeholder="Cari layanan yang kamu butuhin..."
               className="w-full px-6 py-4 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-secondary"
             />
-            <Button className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md">Cari</Button>
+            <Button className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md">
+              Cari
+            </Button>
           </div>
         </div>
       </div>
